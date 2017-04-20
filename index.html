@@ -10,50 +10,101 @@
     canvas{display: block;}
 </style>
 <body>
+    <canvas id="c"></canvas>
 </body>
 </html>
 <script>
-    var canvas = document.createElement('canvas');
-    document.body.appendChild(canvas);
-    var w = canvas.width = window.innerWidth;
-    var h = canvas.height = window.innerHeight;
-    ctx = canvas.getContext('2d');
+    (function() {
 
-    var yzx = {
-        _data:[],
-        lineNum: 20,
-    }
-    for(var k = 0; k < yzx.lineNum; k ++) {
-        yzx._data[k] = {};
-        yzx._data[k].x = Math.floor(Math.random() * w);
-        yzx._data[k].y = Math.floor(Math.random() * h);
-        yzx._data[k].my = Math.floor(Math.random() * 10 + 10);
+    'use strict';
+
+    function Line(x, y, hue) {
+        this.x = x;
+        this.y = y;
+        this.ox = this.x;
+        this.oy = this.y;
+        this.hue = hue;
+        this.a = Math.random() * 360;
+        this.va = Math.random() * 0.2 - 0.1;
+        this.vx = Math.random() * 20;
+        this.radius = Math.random() * 150;
+        this.delay = Math.random() * 100;
     }
 
-    !function draw() {
-        ctx.clearRect(0,0,w,h);
-        for(var j = 0; j < yzx.lineNum; j ++) {
-            yzx._data[j].y += yzx._data[j].my;
-            if(yzx._data[j].y > h + 100) {
-                yzx._data[j].y = -(yzx._data[j].y - h);
-                yzx._data[j].x = Math.floor(Math.random() * w);
+    Line.prototype = {
+        constructor: Line,
+        update: function(ctx) {
+
+            if (this.delay > 0) {
+                this.delay--;
+                return;
             }
-            star(yzx._data[j].x,yzx._data[j].y);
-        }
-        window.requestAnimationFrame(draw)
-    }();
 
-    function star(x,y) {
-        var color = 1;
-        for(var i = 0; i < 100; i++) {
+            this.ox = this.x;
+            this.oy = this.y;
+
+            this.x += this.vx * Math.random();
+            this.vx += Math.random() * 2 - 1;
+
+            this.y = c.height / 2 + Math.sin(this.a += this.va * Math.random()) * this.radius;
+
+            ctx.strokeStyle = 'hsl(' + (this.hue) + ', 100%, 50%)';
+            ctx.lineWidth = 1 + Math.cos(this.a) * Math.random() * 5;
             ctx.beginPath();
-            color = color - 0.01;
-            ctx.fillStyle = 'rgba(255,255,0,'+color+')';
-            y = y - 2;
-            ctx.arc(x, y, 2, 0, Math.PI * 2, true);
-            ctx.fill();
-            ctx.closePath();
+            ctx.moveTo(this.ox, this.oy);
+            ctx.lineTo(this.x, this.y);
+            ctx.stroke();
+
+            if (this.x > c.width) {
+                this.x = 0;
+                this.vx = Math.random() * 20;
+                this.hue = Math.random() * 360;
+                this.va = Math.random() * 0.2 - 0.1;
+            }
+
+            if (this.x < 0) {
+                this.x = c.width;
+                this.vx = Math.random() * -20;
+                this.hue = Math.random() * 360;
+                this.va = Math.random() * 0.2 - 0.1;
+            }
+
         }
+    };
+
+    var c = document.getElementById('c'),
+        ctx = c.getContext('2d');
+
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+
+    var lines = [],
+        maxLines = 100,
+        hue = 0,
+        hueInc = 360 / maxLines;
+
+    for (var i = 0; i < maxLines; i++) {
+        lines.push(new Line(0, c.height / 2, hue += hueInc));
     }
+
+    console.log(lines);
+
+    requestAnimationFrame(function loop() {
+        requestAnimationFrame(loop);
+
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (var i = 0, len = lines.length; i < len; i++) {
+            lines[i].update(ctx);
+        }
+
+        ctx.restore();
+
+    });
+
+})();
 
 </script>
