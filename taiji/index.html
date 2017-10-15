@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<style type="text/css">
+    body,html{background-color: #a8a8a8;height: 100%;}
+    *{margin: 0;padding: 0;}
+
+    @keyframes rotate {
+        from{
+            transform: rotate(0);
+        }
+        to{
+            transform: rotate(-360deg);
+        }
+    }
+    @keyframes effect {
+        0%{
+            box-shadow: 0 0px 200px black;
+        }
+        100%{
+            box-shadow: 0px 0px 0px black;
+        }
+    }
+    div{
+        position: relative;
+        top: 200px;
+        left: 40%;
+        width: 0;
+        height: 400px;
+        border-radius: 50%;
+        border-left: black 200px solid;
+        border-right: white 200px solid;
+        /*box-shadow: 1px 1px 2px black;*/
+        animation: rotate 2s linear infinite,effect 2s linear infinite alternate;
+        transform: rotate(0);
+    }
+    div:after{
+        content: "";
+        display: block;
+        width: 200px;
+        height: 200px;
+        box-sizing: border-box;
+        background-color: white;
+        border: black 70px solid;
+        border-radius: 50%;
+        transform: translate(-50%,0);
+    }
+    div:before{
+        content: "";
+        display: block;
+        width: 200px;
+        height: 200px;
+        box-sizing: border-box;
+        background-color: black;
+        border: white 70px solid;
+        border-radius: 50%;
+        transform: translate(-50%,0);
+    }
+</style>
+<body>
+<div></div>
+</body>
+</html>

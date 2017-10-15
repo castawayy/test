@@ -5,198 +5,63 @@
     <title>Title</title>
 </head>
 <style>
-    * {
+    *{
         margin: 0;
         padding: 0;
     }
+    body,html{height: 100%;background-color: rgba(48,208,212,1)}
+    /*去除浮动*/
+    .clearFix:after{
+        clear:both;
+        display:block;
+        visibility:hidden;
+        height:0;
+        line-height:0;
+        content:'';
 
-    #canvas {
-        display: block;
     }
+    .clearFix{
+        zoom:1;
+        clear: both;
+    } /*解决ie6/7兼容问题*/
 
-    body {
-        background: url("6619440430235233504.jpg") center center no-repeat;
+    #app{
+        margin: 0 auto;
+        width: 100%;
+        height: auto;
+        text-align: center;
+    }
+    #app .title{
+        text-align: center;
+        font-size: 100px;
+        color: white;
+        display: inline-block;
+        border-bottom: white 8px solid;
+    }
+    #app img{
+        width: 300px;
+        height: 150px;
+    }
+    ul{
+        display: inline-block;
+        width: 600px;
+        margin: 0 auto;
+    }
+    ul li {
+        float: left;
+        list-style: none;
     }
 </style>
 <body>
-<canvas id="canvas"></canvas>
+<div id="app">
+    <div style="width: 100%;margin-bottom: 30px;"><p class="title">展示栏</p></div>
+    <ul title="clearFix">
+        <li><a href="taiji/index.html" target="_blank"><img src="images/taiji.jpg" alt=""></a></li>
+        <li><a href="blackData/index.html" target="_blank"><img src="images/black.jpg" alt=""></a></li>
+        <li><a href="particle/index.html" target="_blank"><img src="images/lizhi.jpg" alt=""></a></li>
+        <li><a href="bubble/index.html" target="_blank"><img src="images/paopao.jpg" alt=""></a></li>
+    </ul>
+</div>
+
 </body>
 </html>
-<script>
-    var canvas = document.getElementById('canvas');
-    var cxt = canvas.getContext('2d');
-
-    var f = false;
-    var yzx = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        speed: 1,
-        data: [],
-        move: {},
-        num: 100,
-    }
-    // requestAnimFrame
-    window.requestAnimFrame = (function () {
-        return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            function (callback) {
-                window.setTimeout(callback, 1000 / 60);
-            };
-    })();
-
-    //    定义初始画布尺寸
-    canvas.width = yzx.width;
-    canvas.height = yzx.height;
-
-    //获取图片
-    var picture = new Image();
-    picture.src = 'blue.png';
-    var redBall = new Image();
-    redBall.src = 'red.png';
-    //图片加载后执行
-    picture.onload = function () {
-        redBall.onload = function () {
-            //红泡泡初始坐标
-            yzx.move = {x: yzx.width / 2, y: yzx.height / 2, cx: 6, cy: 6}
-            //生成红泡泡
-            createBubble(redBall, yzx.move.x, yzx.move.y, 100, 100);
-
-            //随机蓝泡泡生成
-            for (var i = 0; i < yzx.num; i++) {
-                yzx.data[i] = {};
-                yzx.data[i].x = Math.floor(Math.random() * yzx.width);
-                yzx.data[i].y = Math.floor(Math.random() * yzx.height);
-                yzx.data[i].cx = (Math.random() * yzx.speed) > 0.5 ? 1 : -1;
-                yzx.data[i].cy = (Math.random() * yzx.speed) > 0.5 ? 1 : -1;
-                yzx.data[i].r = Math.floor(Math.random() * (50 - 20 + 1) + 20);
-                createBubble(picture, yzx.data[i].x, yzx.data[i].y, yzx.data[i].r);
-            }
-            //泡泡运动方法
-
-            !function draw() {
-                //清除画布
-                cxt.clearRect(0, 0, yzx.width, yzx.height);
-                //红泡泡运动规则
-                if (!f) {
-
-                    var _xx = '', _yy = '';
-                    if (yzx.move.x > yzx.width - 50 || yzx.move.x < 50) yzx.move.cx = -yzx.move.cx;
-                    if (yzx.move.y > yzx.height - 50 || yzx.move.y < 50) yzx.move.cy = -yzx.move.cy;
-                    _xx = yzx.move.x - 50;
-                    _yy = yzx.move.y - 50;
-
-                    if (yzx.move.x >= yzx.width - 50) {
-                        yzx.move.cx = -2;
-                        _xx = yzx.move.x;
-                    } else if (yzx.move.x <= 50) {
-                        yzx.move.cx = 2;
-                        _xx = yzx.move.x;
-                    } else if (yzx.move.y >= yzx.height - 50) {
-                        yzx.move.cy = -2;
-                        _yy = yzx.move.y;
-                    } else if (yzx.move.y <= 50) {
-                        yzx.move.cy = 2;
-                        _yy = yzx.move.y;
-                    }
-                    yzx.move.x += yzx.move.cx;
-                    yzx.move.y += yzx.move.cy;
-                    createBubble(redBall, _xx, _yy, 100);
-                } else {
-                    //红泡泡不得超出屏幕范围
-                    var _x = '', _y = '';
-                    if (yzx.move.x - 50 <= 0) {
-                        _x = 0;
-                    } else if (yzx.move.x >= yzx.width - 50) {
-                        _x = yzx.width - 100;
-                    } else if (yzx.move.x - 50 > 0 && yzx.move.x < yzx.width - 50) {
-                        _x = yzx.move.x - 50;
-                    }
-
-                    if (yzx.move.y - 50 <= 0) {
-                        _y = 0;
-                    } else if (yzx.move.y >= yzx.height - 50) {
-                        _y = yzx.height - 100;
-                    } else if (yzx.move.y - 50 > 0 && yzx.move.y < yzx.height - 50) {
-                        _y = yzx.move.y - 50;
-                    }
-                    createBubble(redBall, _x, _y, 100);
-                }
-
-                for (var j = 0; j < yzx.num; j++) {
-                    //蓝泡泡减速
-                    function decelerate() {
-                        yzx.data[j].cx = yzx.data[j].cx > 0 ? 1 : -1;
-                        yzx.data[j].cy = yzx.data[j].cy > 0 ? 1 : -1;
-                    }
-
-                    //蓝泡泡上下左右衔接
-                    if (yzx.data[j].x >= yzx.width) {
-                        yzx.data[j].x = 0;
-                        decelerate();
-                    } else if ((Math.abs(yzx.data[j].x) < Math.abs(yzx.data[j].r)) && yzx.data[j].x < 0) {
-                        yzx.data[j].x = yzx.width + yzx.data[j].r - 10;
-                        decelerate();
-                    } else if (yzx.data[j].y >= yzx.height) {
-                        yzx.data[j].y = 0;
-                        decelerate();
-                    } else if ((Math.abs(yzx.data[j].y) < Math.abs(yzx.data[j].r)) && yzx.data[j].y < 0) {
-                        yzx.data[j].y = yzx.height + yzx.data[j].r - 10;
-                        decelerate();
-                    }
-                    //红，蓝碰撞反弹
-                    if (Math.round(Math.pow(yzx.data[j].x - (yzx.move.x - 25), 2) +
-                            Math.pow(yzx.data[j].y - (yzx.move.y - 25), 2)) <=
-                        Math.pow(yzx.data[j].r / 2 + 50, 2)) {
-                        yzx.data[j].cx = -yzx.data[j].cx * 2;
-                        yzx.data[j].cy = -yzx.data[j].cy * 2;
-                    }
-                    //蓝泡泡碰撞反弹
-                    for (var k = 0; k < yzx.num; k++) {
-                        if (Math.round(Math.pow(yzx.data[j].x - yzx.data[k].x, 2) +
-                                Math.pow(yzx.data[j].y - yzx.data[k].y, 2)) <=
-                            Math.round(Math.pow((yzx.data[j].r / 2) + (yzx.data[k].r / 2), 2))) {
-                            yzx.data[j].cx = -yzx.data[j].cx;
-                            yzx.data[j].cy = -yzx.data[j].cy;
-                            yzx.data[k].cx = -yzx.data[k].cx;
-                            yzx.data[k].cy = -yzx.data[k].cy;
-                        }
-                    }
-                    //篮泡泡运动
-                    yzx.data[j].x += yzx.data[j].cx;
-                    yzx.data[j].y += yzx.data[j].cy;
-                    createBubble(picture, yzx.data[j].x, yzx.data[j].y, yzx.data[j].r);
-                }
-                //帧动画
-                requestAnimFrame(draw)
-            }();
-        }
-    }
-    //画泡泡
-    function createBubble(picture, x, y, r) {
-        cxt.beginPath();
-        cxt.drawImage(picture, x, y, r, r)
-        cxt.closePath();
-    }
-    //判断鼠标是否移上
-
-    canvas.onmouseover = function () {
-        f = true;
-    }
-    canvas.onmouseout = function () {
-        f = false;
-    }
-    //鼠标移动时存储坐标值
-    canvas.onmousemove = function (event) {
-        var event = event || window.event;
-        var mx = event.clientX;
-        var my = event.clientY;
-        yzx.move.x = mx;
-        yzx.move.y = my;
-    }
-    //canvas自适应
-    window.onresize = function () {
-        yzx.width = canvas.width = window.innerWidth;
-        yzx.height = canvas.height = window.innerHeight;
-    }
-</script>

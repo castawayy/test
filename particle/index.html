@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    *{
+        margin:0;
+        padding:0;
+    }
+    #canvas{
+        display: block;
+        background-color: #000;
+    }
+</style>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+</html>
+<script>
+    var canvas = document.getElementById('canvas');
+    var cxt = canvas.getContext('2d');
+
+    var yz = {
+        num: 300,
+        data: [],
+        w: window.innerWidth,
+        h: window.innerHeight,
+        move: [],
+        speed: 2,
+        distance: 60,
+        mouseEvent: false,
+    }
+    canvas.width = yz.w;
+    canvas.height = yz.h;
+
+    document.onmousemove = function (e) {
+        yz.move.x = e.pageX;
+        yz.move.y = e.pageY;
+        for(var i = 0; i < yz.num ; i++) yz.data[i].isLine = false;
+        yz.mouseEvent = true;
+    }
+    document.onmouseleave = function(){
+       // for(var i = 0; i < yz.num ; i++) yz.data[i].isLine = true;
+        yz.move.x = '';
+        yz.move.y = '';
+        yz.mouseEvent = false;
+    }
+
+    for (var i = 0; i < yz.num; i++ ) {
+        yz.data[i] = {};
+        yz.data[i].x = Math.random()*yz.w;
+        yz.data[i].y = Math.random()*yz.h;
+        yz.data[i].isLine = false;
+        yz.data[i].cx = (Math.random() * 1) > 0.5 ? yz.speed : -yz.speed;
+        yz.data[i].cy = (Math.random() * 1) > 0.5 ? yz.speed : -yz.speed;
+        Cricle(yz.data[i].x,yz.data[i].y);
+    }
+
+    ~function draw() {
+       cxt.clearRect(0,0,yz.w,yz.h)
+        for (var i = 0; i < yz.num; i++ ) {
+            yz.data[i].x += yz.data[i].cx;
+            yz.data[i].y += yz.data[i].cy;
+            if(yz.data[i].x > yz.w || yz.data[i].x < 0) yz.data[i].cx = -yz.data[i].cx;
+            if(yz.data[i].y > yz.h || yz.data[i].y < 0) yz.data[i].cy = -yz.data[i].cy;
+            for(var j = i+1; j < yz.num; j++) {
+                var lt = (yz.data[i].x - yz.data[j].x) * (yz.data[i].x - yz.data[j].x) +
+                    (yz.data[i].y - yz.data[j].y) * (yz.data[i].y - yz.data[j].y);
+                if (lt <= yz.distance * yz.distance) {
+                    Line(yz.data[i].x, yz.data[i].y, yz.data[j].x, yz.data[j].y)
+                }
+            }
+            if(yz.move.x) {
+                var lt = (yz.data[i].x - yz.move.x) * (yz.data[i].x - yz.move.x) +
+                    (yz.data[i].y - yz.move.y) * (yz.data[i].y - yz.move.y);
+                if (yz.data[i].isLine) {
+                    if (lt > yz.distance * yz.distance) {
+                        yz.data[i].cx = -yz.data[i].cx;
+                        yz.data[i].cy = -yz.data[i].cy;
+                    }
+                } else if (lt <= yz.distance * yz.distance) {
+                    yz.data[i].isLine = true;
+                }
+                if (lt <= yz.distance * yz.distance) {
+                    Line(yz.data[i].x, yz.data[i].y, yz.move.x, yz.move.y)
+                }
+            }
+            Cricle(yz.data[i].x,yz.data[i].y)
+        }
+        window.requestAnimationFrame(draw)
+    }()
+
+    function Cricle(x,y){
+        cxt.fillStyle = '#fff';
+        cxt.beginPath();
+        cxt.arc(x,y,1,0,Math.PI*2,true);
+        cxt.closePath();
+        cxt.fill();
+    }
+
+    function Line(x1,y1,x2,y2) {
+        var _lineColor =  cxt.createLinearGradient(x1,y2,x2,y2);
+        _lineColor.addColorStop(1,'#0024ff');
+        _lineColor.addColorStop(0,'#fff');
+        cxt.strokeStyle = _lineColor;
+        cxt.beginPath();
+        cxt.moveTo(x1,y1);
+        cxt.lineTo(x2,y2);
+        cxt.closePath()
+        cxt.stroke();
+    }
+</script>
